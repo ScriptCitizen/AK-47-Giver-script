@@ -1,0 +1,44 @@
+local Gun = "AK-47"
+local PlayerName = "Your NAME"
+local Player = game.Players:FindFirstChild(PlayerName)
+
+if Player then
+    function GetGun(Item)
+        task.spawn(function()
+            local item = workspace.Prison_ITEMS:FindFirstChild(Item, true)
+            if item then
+                workspace:FindFirstChild("Remote")['ItemHandler']:InvokeServer({
+                    Position = Player.Character.Head.Position,
+                    Parent = item
+                })
+            end
+        end)
+    end
+
+    GetGun(Gun)
+
+    for _, v in pairs(Player.Backpack:GetChildren()) do
+        if v.Name == Gun then
+            v.Parent = Player.Character
+            break
+        end
+    end
+
+    -- İşlem başarılı olduğunda bildirim gönder
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Success";
+        Text = "Operation successful";
+        Duration = 5;
+        Icon = "rbxassetid://103211201258546";
+        Button1 = "Okay";
+    })
+
+else
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Error";
+        Text = "Player not found";
+        Duration = 5;
+        Icon = "rbxassetid://81115300205157"; 
+        Button1 = "Okay";
+    })
+end
