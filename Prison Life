@@ -1,6 +1,5 @@
 local Gun = "AK-47"
-local PlayerName = "Your NAME"
-local Player = game.Players:FindFirstChild(PlayerName)
+local Player = game.Players.LocalPlayer
 
 if Player then
     function GetGun(Item)
@@ -24,7 +23,6 @@ if Player then
         end
     end
 
-    -- İşlem başarılı olduğunda bildirim gönder
     game.StarterGui:SetCore("SendNotification", {
         Title = "Success";
         Text = "Operation successful";
