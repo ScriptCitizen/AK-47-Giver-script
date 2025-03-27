@@ -1,42 +1,98 @@
+-- Variables
 local Gun = "AK-47"
+local targetPlaceId = 155615604 -- Game ID for Prison Life
 local Player = game.Players.LocalPlayer
+local gui
 
-if Player then
-    function GetGun(Item)
-        task.spawn(function()
-            local item = workspace.Prison_ITEMS:FindFirstChild(Item, true)
-            if item then
-                workspace:FindFirstChild("Remote")['ItemHandler']:InvokeServer({
-                    Position = Player.Character.Head.Position,
-                    Parent = item
-                })
-            end
-        end)
-    end
+-- Function to create the GUI
+local function createGui()
+    gui = Instance.new("ScreenGui", Player.PlayerGui)
+    gui.Name = "JoinGameGui"
 
-    GetGun(Gun)
+    -- Main frame for the GUI
+    local frame = Instance.new("Frame", gui)
+    frame.Size = UDim2.new(0, 350, 0, 200)
+    frame.Position = UDim2.new(0.5, -175, 0.5, -100)
+    frame.BackgroundColor3 = Color3.new(0, 0, 0)
+    frame.BorderSizePixel = 0
 
-    for _, v in pairs(Player.Backpack:GetChildren()) do
-        if v.Name == Gun then
-            v.Parent = Player.Character
-            break
-        end
-    end
+    local uicorner = Instance.new("UICorner", frame)
+    uicorner.CornerRadius = UDim.new(0, 15) -- Smooth corners
 
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "Success";
-        Text = "Operation successful";
-        Duration = 5;
-        Icon = "rbxassetid://103211201258546";
-        Button1 = "Okay";
-    })
+    -- Label to show the text "Wrong Game"
+    local label = Instance.new("TextLabel", frame)
+    label.Text = "You're in the wrong game.\nDo you want to go to Prison Life?"
+    label.Size = UDim2.new(1, 0, 0.5, 0)
+    label.Position = UDim2.new(0, 0, 0, 0)
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.SourceSans
+    label.TextSize = 24
+    label.TextWrapped = true
 
-else
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "Error";
-        Text = "Player not found";
-        Duration = 5;
-        Icon = "rbxassetid://81115300205157"; 
-        Button1 = "Okay";
-    })
+    -- Yes Button
+    local yesButton = Instance.new("TextButton", frame)
+    yesButton.Text = "Yes"
+    yesButton.Size = UDim2.new(0, 100, 0, 50)
+    yesButton.Position = UDim2.new(0.25, -50, 0.7, 0)
+    yesButton.BackgroundColor3 = Color3.new(0.3, 0.9, 0.3)
+    yesButton.TextColor3 = Color3.new(1, 1, 1)
+
+    -- No Button
+    local noButton = Instance.new("TextButton", frame)
+    noButton.Text = "No"
+    noButton.Size = UDim2.new(0, 100, 0, 50)
+    noButton.Position = UDim2.new(0.75, -50, 0.7, 0)
+    noButton.BackgroundColor3 = Color3.new(0.9, 0.3, 0.3)
+    noButton.TextColor3 = Color3.new(1, 1, 1)
+
+    -- Button actions
+    yesButton.MouseButton1Click:Connect(function()
+        -- Teleport to the target game
+        game:GetService("TeleportService"):Teleport(targetPlaceId, Player)
+    end)
+
+    noButton.MouseButton1Click:Connect(function()
+        gui:Destroy() -- Remove GUI if "No" is clicked
+    end)
 end
+
+-- Function to check if player is in the target game
+local function checkGame()
+    if game.PlaceId ~= targetPlaceId then
+        createGui() -- Show GUI if player is not in the target game
+    else
+        -- If player is in the game, give them the gun
+        function GetGun(Item)
+            task.spawn(function()
+                local item = workspace.Prison_ITEMS:FindFirstChild(Item, true)
+                if item then
+                    workspace:FindFirstChild("Remote")['ItemHandler']:InvokeServer({
+                        Position = Player.Character.Head.Position,
+                        Parent = item
+                    })
+                end
+            end)
+        end
+
+        GetGun(Gun)
+
+        for _, v in pairs(Player.Backpack:GetChildren()) do
+            if v.Name == Gun then
+                v.Parent = Player.Character
+                break
+            end
+        end
+
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "Success";
+            Text = "Operation successful";
+            Duration = 5;
+            Icon = "rbxassetid://103211201258546";
+            Button1 = "Okay";
+        })
+    end
+end
+
+-- Run the check
+checkGame()
